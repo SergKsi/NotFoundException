@@ -21,10 +21,9 @@ public class ProductRepositoryTest {
         repo.save(items5);
     }
 
-    // id  отрицательное
+    // id отрицательное
     @Test
-    public void testRemove() {
-        // убедись что кидается
+    public void testRemoveNegativeNumber() {
         Assertions.assertThrows(NotFoundException.class, () -> {
             repo.removeById(-100);
         });
@@ -32,21 +31,45 @@ public class ProductRepositoryTest {
 
     // id нет в Product
     @Test
-    public void testRemoveById() {
-        // убедись что кидается
+    public void testRemoveByIdNoProduct() {
         Assertions.assertThrows(NotFoundException.class, () -> {
             repo.removeById(55);
         });
     }
 
-    // id имеется в Product
+    // id имеется в Product - исключения не обрабатываются
     @Test
-    public void testRemoveById1() {
+    public void testRemoveByIdInProduct() {
 
         repo.removeById(12);
+
         Product[] expected = {items1, items2, items3, items5};
         Product[] actual = repo.getItems();
+
         Assertions.assertArrayEquals(expected, actual);
+    }
+
+    // id успешно добавлен
+    @Test
+    public void testSaveOk() {
+        Product items6 = new Book(33, "book3", 7000, "k3");
+
+        repo.save(items6);
+
+        Product[] expected = {items1, items2, items3, items4, items5, items6};
+        Product[] actual = repo.getItems();
+
+        Assertions.assertArrayEquals(expected, actual);
+    }
+
+    // генерации AlreadyExistsException при попытке добавить элемент с повторяющимся id
+    @Test
+    public void testSaveRecurringId() {
+        Product items6 = new Smartphone(9, "Smartphone", 56000, "Samsung");
+
+        Assertions.assertThrows(AlreadyExistsException.class, () -> {
+            repo.save(items6);
+        });
     }
 
 }
